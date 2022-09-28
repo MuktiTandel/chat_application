@@ -2,5 +2,6 @@ import 'dart:ui';
 
 class CustomColor {
 
-  static const Color buttoncolor = Color(0xFF123054);
+  static const Color disable_btn = Color(0xFF87DFBD);
+  static const Color primary = Color(0xFF3DC17D);
 }

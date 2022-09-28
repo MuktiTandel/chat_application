@@ -10,9 +10,12 @@ class CustomTextformfield extends StatelessWidget {
     this.hinttext,
     this.errortext,
     required this.controller,
-    required Function(String val) validator,
+    Function(String val)? validator,
+    Function(String val)? onchange,
     this.isObscure = false
-  }) : _validator = validator, super(key: key);
+  }) : _validator = validator,
+      _onchange = onchange,
+        super(key: key);
 
   final double? border_radius;
   final IconData? prefixicon;
@@ -20,9 +23,10 @@ class CustomTextformfield extends StatelessWidget {
   final Widget? suffixWidget;
   final String? hinttext;
   final String? errortext;
-  final Function(String val) _validator;
+  final Function(String val)? _validator;
   final TextEditingController controller;
   final bool? isObscure;
+  final Function(String val)? _onchange;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +42,8 @@ class CustomTextformfield extends StatelessWidget {
         hintText: hinttext,
         errorText: errortext
       ),
-      validator: (val) => _validator(val!)
+      validator: (val) => _validator!(val!) ?? {},
+      onChanged: (val) => _onchange!(val) ?? {},
     );
   }
 }
