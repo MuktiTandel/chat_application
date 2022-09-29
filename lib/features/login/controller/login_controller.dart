@@ -7,9 +7,9 @@ class LoginController extends GetxController{
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
-  final formKey = GlobalKey<FormState>();
+  final formKey1 = GlobalKey<FormState>();
 
-  Color btn_color = CustomColor.disable_btn;
+  RxBool IsObscure  = true.obs;
 
   @override
   void dispose() {
@@ -18,13 +18,8 @@ class LoginController extends GetxController{
     super.dispose();
   }
 
-  void changeColor(bool Isenable){
-    if(Isenable == true){
-      btn_color = CustomColor.primary;
-      update();
-    }else{
-      btn_color = CustomColor.disable_btn;
-    }
+  void showpassword() {
+    IsObscure(!IsObscure.value);
   }
 
 }

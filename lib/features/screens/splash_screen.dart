@@ -1,3 +1,4 @@
+import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/utils/images.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
+  final controller = Get.put(FirebaseController());
 
   @override
   void initState() {

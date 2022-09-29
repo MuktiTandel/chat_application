@@ -5,11 +5,15 @@ class CustomText extends StatelessWidget {
   const CustomText({
     Key? key,
     required this.text,
-    this.textAlign
+    this.textAlign,
+    this.fontWeight,
+    this.fontsize
   }) : super(key: key);
 
   final String text;
   final TextAlign? textAlign;
+  final FontWeight? fontWeight;
+  final double? fontsize;
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +21,9 @@ class CustomText extends StatelessWidget {
         text,
       textAlign: textAlign,
       style: TextStyle(
-        fontSize: 12.sp,
-        fontFamily: 'SourceSansPro'
+        fontSize: fontsize ?? 12.sp,
+        fontFamily: 'SourceSansPro',
+        fontWeight: fontWeight
       ),
     );
   }

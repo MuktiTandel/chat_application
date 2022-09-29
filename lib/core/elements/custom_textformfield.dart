@@ -1,3 +1,4 @@
+import 'package:chat_application/core/elements/customColor.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextformfield extends StatelessWidget {
@@ -12,7 +13,9 @@ class CustomTextformfield extends StatelessWidget {
     required this.controller,
     Function(String val)? validator,
     Function(String val)? onchange,
-    this.isObscure = false
+    this.isObscure = false,
+    this.focusBorderColor,
+    this.cursorColor
   }) : _validator = validator,
       _onchange = onchange,
         super(key: key);
@@ -27,14 +30,21 @@ class CustomTextformfield extends StatelessWidget {
   final TextEditingController controller;
   final bool? isObscure;
   final Function(String val)? _onchange;
+  final Color? focusBorderColor;
+  final Color? cursorColor;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       obscureText: isObscure ?? false,
+      cursorColor: cursorColor ?? Colors.black,
       decoration: InputDecoration(
         border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(border_radius ?? 10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: focusBorderColor ?? Colors.black),
           borderRadius: BorderRadius.circular(border_radius ?? 10)
         ),
         prefixIcon: Icon(prefixicon, color: prefixiconColor,),
@@ -42,8 +52,8 @@ class CustomTextformfield extends StatelessWidget {
         hintText: hinttext,
         errorText: errortext
       ),
-      validator: (val) => _validator!(val!) ?? {},
-      onChanged: (val) => _onchange!(val) ?? {},
+      validator: (val) => _validator!(val!),
+      onChanged: (val) => _onchange ?? {},
     );
   }
 }

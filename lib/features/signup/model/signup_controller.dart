@@ -14,6 +14,10 @@ class SignupController extends GetxController{
 
   final formKey = GlobalKey<FormState>();
 
+  RxBool IsObsecure1 = true.obs;
+
+  RxBool IsObsecure2 = true.obs;
+
   @override
   void dispose() {
     username.dispose();
@@ -23,5 +27,14 @@ class SignupController extends GetxController{
     confPassword.dispose();
     super.dispose();
   }
+
+  void showpassword1(){
+    IsObsecure1(!IsObsecure1.value);
+  }
+
+  void showpassword2(){
+    IsObsecure2(!IsObsecure2.value);
+  }
+
 
 }
