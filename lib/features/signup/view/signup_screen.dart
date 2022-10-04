@@ -1,3 +1,4 @@
+import 'package:chat_application/core/controller/database_controller.dart';
 import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/elements/customColor.dart';
 import 'package:chat_application/core/elements/custom_richtext.dart';
@@ -6,12 +7,16 @@ import 'package:chat_application/core/elements/custom_title.dart';
 import 'package:chat_application/core/elements/custombutton.dart';
 import 'package:chat_application/core/elements/customdialog.dart';
 import 'package:chat_application/core/elements/customtext.dart';
+import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
+import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/images.dart';
-import 'package:chat_application/features/signup/model/signup_controller.dart';
+import 'package:chat_application/features/otp/controller/otp_controller.dart';
+import 'package:chat_application/features/signup/controller/signup_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class SignupScreen extends StatelessWidget {
@@ -19,7 +24,13 @@ class SignupScreen extends StatelessWidget {
 
    final controller = Get.put(SignupController());
 
+   final otpController = Get.put(OtpController());
+
    final firebase_controller = Get.put(FirebaseController());
+
+   final databaseController = Get.put(DatabaseController());
+
+   Constance constance = Constance();
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +57,12 @@ class SignupScreen extends StatelessWidget {
                               color: Colors.black12,
                               shape: BoxShape.circle
                           ),
-                          child: ClipOval(
+                          child: Obx(() => ClipOval(
                             child: SizedBox.fromSize(
                               size: const Size.fromRadius(60),
-                              child: Image.asset(Images.user, fit: BoxFit.fill,),
+                              child: controller.IsImage.value ?  Image.file(controller.image, fit: BoxFit.cover,) : Image.asset(Images.user, fit: BoxFit.fill,),
                             ),
-                          ),
+                          )),
                         ),
                         Positioned(
                           top: 11.h,
@@ -71,11 +82,16 @@ class SignupScreen extends StatelessWidget {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            ContentWidget((){
+                                            ContentWidget(() async{
+                                              controller.picImage = await controller.picker.pickImage(source: ImageSource.camera);
+                                              controller.checkImage();
+                                              constance.Debug('Image = ${controller.picImage}');
                                               Get.back();
                                             }, Images.photo_camera, 'Camera'),
                                             SizedBox(width: 8.w,),
-                                            ContentWidget((){
+                                            ContentWidget(() async {
+                                              controller.picImage = await controller.picker.pickImage(source: ImageSource.gallery);
+                                              controller.checkImage();
                                               Get.back();
                                             }, Images.gallery, 'Gallery')
                                           ],
@@ -162,7 +178,15 @@ class SignupScreen extends StatelessWidget {
                   controller: controller.phoneNumber,
                   cursorColor: CustomColor.primary,
                   initialCountryCode: 'IN',
-                  validator: (val){},
+                  validator: (val){
+                    if(val.toString().isEmpty){
+                      return 'Please enter phone number';
+                    }
+                  },
+                  onChanged: (phone) {
+                    controller.complete_number = phone.countryCode + phone.number;
+                    otpController.completeNumber = phone.countryCode + phone.number;
+                  },
                 ),
                 SizedBox(height: 2.h,),
                 Obx(() =>  CustomTextformfield(
@@ -230,12 +254,28 @@ class SignupScreen extends StatelessWidget {
                 SizedBox(height: 3.h,),
                 CustomButton(
                   ontap: () async{
-                    /*if(controller.formKey.currentState!.validate()){
+                    if(controller.formKey.currentState!.validate()){
                       FocusScope.of(context).unfocus();
 
-                      firebase_controller.register(controller.email.text, controller.password.text);
-                    }*/
-                    Get.offAllNamed(Routes.OTP);
+                       await firebase_controller.register(controller.email.text, controller.password.text);
+
+                       await firebase_controller.phone_authentication(controller.complete_number);
+
+                      controller.userdata = UserModel(
+                          id: 0,
+                          username: controller.username.text,
+                          email: controller.email.text,
+                          phonenumber: controller.phoneNumber.text,
+                          password: controller.password.text,
+                          image: controller.image.path
+                      );
+
+                      databaseController.database.ref('User/user1').set(controller.userdata?.toMap());
+
+                      constance.Debug('user data => ${controller.userdata?.toMap()}');
+                      constance.Debug('phone number = ${controller.phoneNumber.text}');
+                      Get.toNamed(Routes.OTP);
+                    }
                   },
                   buttontext: 'Sign up',
                   borderRadius: 35,

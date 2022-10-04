@@ -22,6 +22,8 @@ class FirebaseController extends GetxController {
 
   ProgressDialog progressDialog = ProgressDialog();
 
+  String? VerificationId;
+
   @override
   void onReady() {
     super.onReady();
@@ -107,15 +109,64 @@ class FirebaseController extends GetxController {
     }
   }
 
-  void register(String email, password) async{
+  Future register(String email, password) async{
 
     try {
       await auth.createUserWithEmailAndPassword(email: email, password: password);
-      Get.offAllNamed(Routes.OTP);
+      Get.offNamed(Routes.OTP);
     } catch (firebaseAuthException) {
       constance.Debug(firebaseAuthException.toString());
     }
 
+  }
+
+  Future phone_authentication(String phonenumber) async{
+
+    await auth.verifyPhoneNumber(
+      phoneNumber: phonenumber,
+        verificationCompleted: (PhoneAuthCredential credential) async{
+          constance.Debug('Verification Complete ${credential.smsCode}');
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if(e.code == 'invalid-phone-number'){
+            constance.Debug('The provided phone number is not valid.');
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+
+          // PhoneAuthCredential credential  = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
+          // await auth.signInWithCredential(credential);
+          constance.Debug("Verification Id = $verificationId");
+          constance.Debug('code sent');
+          this.VerificationId = verificationId;
+        },
+        codeAutoRetrievalTimeout: (String verificationId){}
+    );
+
+  }
+
+  Future verifyOTP(String otp) async{
+
+    PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+        verificationId: VerificationId!,
+        smsCode: otp
+    );
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if(phoneAuthCredential.smsCode != null){
+      try {
+
+        UserCredential userCredential = await user!.linkWithCredential(phoneAuthCredential);
+
+        Get.offAllNamed(Routes.LOGIN);
+        // constance.Debug(userCredential.credential!.token.toString());
+      } on FirebaseAuthException catch (e) {
+        if(e.code == 'provider-already-linked'){
+          // await auth.signInWithCredential(credential);
+        }
+      }
+    }
   }
 
   void login(String email,password) async{
