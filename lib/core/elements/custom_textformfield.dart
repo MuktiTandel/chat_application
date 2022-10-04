@@ -1,4 +1,5 @@
 import 'package:chat_application/core/elements/customColor.dart';
+import 'package:chat_application/core/sizer/sizer.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextformfield extends StatelessWidget {
@@ -15,7 +16,8 @@ class CustomTextformfield extends StatelessWidget {
     Function(String val)? onchange,
     this.isObscure = false,
     this.focusBorderColor,
-    this.cursorColor
+    this.cursorColor,
+    this.prefixWidget
   }) : _validator = validator,
       _onchange = onchange,
         super(key: key);
@@ -32,6 +34,7 @@ class CustomTextformfield extends StatelessWidget {
   final Function(String val)? _onchange;
   final Color? focusBorderColor;
   final Color? cursorColor;
+  final Widget? prefixWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class CustomTextformfield extends StatelessWidget {
           borderSide: BorderSide(color: focusBorderColor ?? Colors.black),
           borderRadius: BorderRadius.circular(border_radius ?? 10)
         ),
-        prefixIcon: Icon(prefixicon, color: prefixiconColor,),
+        prefixIcon: prefixWidget ?? Icon(prefixicon, color: prefixiconColor,),
         suffixIcon: suffixWidget,
         hintText: hinttext,
         errorText: errortext

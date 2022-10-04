@@ -1,6 +1,6 @@
 class UserModel{
 
-  final int id;
+  final String id;
   final String username;
   final String email;
   final String phonenumber;
@@ -29,7 +29,7 @@ class UserModel{
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-        id: map['id'] ?? 0,
+        id: map['id'] ?? '',
         username: map['username'] ?? '',
         email: map['email'] ?? '',
         phonenumber: map['phonenumber'] ?? '',

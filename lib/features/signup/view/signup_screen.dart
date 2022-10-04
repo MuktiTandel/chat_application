@@ -14,6 +14,7 @@ import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/images.dart';
 import 'package:chat_application/features/otp/controller/otp_controller.dart';
 import 'package:chat_application/features/signup/controller/signup_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -257,12 +258,12 @@ class SignupScreen extends StatelessWidget {
                     if(controller.formKey.currentState!.validate()){
                       FocusScope.of(context).unfocus();
 
-                       await firebase_controller.register(controller.email.text, controller.password.text);
+                        await firebase_controller.register(controller.email.text, controller.password.text);
 
-                       await firebase_controller.phone_authentication(controller.complete_number);
+                       // await firebase_controller.phone_authentication(controller.complete_number);
 
                       controller.userdata = UserModel(
-                          id: 0,
+                          id: firebase_controller.user!.uid,
                           username: controller.username.text,
                           email: controller.email.text,
                           phonenumber: controller.phoneNumber.text,
@@ -273,8 +274,7 @@ class SignupScreen extends StatelessWidget {
                       databaseController.database.ref('User/user1').set(controller.userdata?.toMap());
 
                       constance.Debug('user data => ${controller.userdata?.toMap()}');
-                      constance.Debug('phone number = ${controller.phoneNumber.text}');
-                      Get.toNamed(Routes.OTP);
+                      Get.toNamed(Routes.OTP, arguments: controller.userdata);
                     }
                   },
                   buttontext: 'Sign up',

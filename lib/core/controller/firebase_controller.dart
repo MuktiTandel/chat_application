@@ -24,6 +24,8 @@ class FirebaseController extends GetxController {
 
   String? VerificationId;
 
+  User? user;
+
   @override
   void onReady() {
     super.onReady();
@@ -113,7 +115,8 @@ class FirebaseController extends GetxController {
 
     try {
       await auth.createUserWithEmailAndPassword(email: email, password: password);
-      Get.offNamed(Routes.OTP);
+      user = FirebaseAuth.instance.currentUser;
+      constance.Debug('user id => ${user!.uid}');
     } catch (firebaseAuthException) {
       constance.Debug(firebaseAuthException.toString());
     }

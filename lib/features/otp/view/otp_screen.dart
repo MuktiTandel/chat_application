@@ -2,6 +2,7 @@ import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/elements/customColor.dart';
 import 'package:chat_application/core/elements/custombutton.dart';
 import 'package:chat_application/core/elements/customtext.dart';
+import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/features/otp/controller/otp_controller.dart';
@@ -9,19 +10,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
-class OtpScreen extends StatelessWidget {
-   OtpScreen({Key? key}) : super(key: key);
+class OtpScreen extends StatefulWidget {
+  const OtpScreen({Key? key}) : super(key: key);
+
+  @override
+  State<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends State<OtpScreen> {
 
   final defaultPinTheme = PinTheme(
-    width: 15.w,
-    height: 7.h,
-    textStyle: TextStyle(
-      fontSize: 15.sp
-    ),
-    decoration: BoxDecoration(
-      border: Border.all(color: CustomColor.primary),
-      borderRadius: BorderRadius.circular(20)
-    )
+      width: 15.w,
+      height: 7.h,
+      textStyle: TextStyle(
+          fontSize: 15.sp
+      ),
+      decoration: BoxDecoration(
+          border: Border.all(color: CustomColor.primary),
+          borderRadius: BorderRadius.circular(20)
+      )
   );
 
   final firebase_controller = Get.put(FirebaseController());
@@ -30,11 +37,22 @@ class OtpScreen extends StatelessWidget {
 
   Constance constance = Constance();
 
+  UserModel? userModel;
+
+  @override
+  void initState() {
+    super.initState();
+
+    userModel = Get.arguments;
+
+    constance.Debug('get data => ${Get.arguments}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-          padding: EdgeInsets.all(6.w),
+        padding: EdgeInsets.all(6.w),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -46,7 +64,7 @@ class OtpScreen extends StatelessWidget {
                   }, icon: Icon(Icons.arrow_back_rounded, color: CustomColor.primary, size: 4.h,)),
                   SizedBox(width: 5.w,),
                   CustomText(
-                      text: 'Enter OTP Code',
+                    text: 'Enter OTP Code',
                     fontWeight: FontWeight.bold,
                     fontsize: 15.sp,
                   ),
@@ -55,7 +73,7 @@ class OtpScreen extends StatelessWidget {
               Container(
                 child: Column(
                   children: [
-                    CustomText(text: 'code has been send to phone number'),
+                    const CustomText(text: 'code has been send to phone number'),
                     SizedBox(height: 5.h,),
                     Pinput(
                       length: 6,
@@ -67,14 +85,18 @@ class OtpScreen extends StatelessWidget {
                 ),
               ),
               CustomButton(
-                  ontap: () async{
-                    if(controller.otp.text.isNotEmpty){
-                      await firebase_controller.verifyOTP(controller.otp.text);
-                    }else {
-                      constance.showSnack('Warning!', 'Please Enter OTP');
-                    }
-                  },
-                  buttontext: 'Verify',
+                ontap: () async{
+                  if(controller.otp.text.isNotEmpty){
+                    await firebase_controller.verifyOTP(controller.otp.text);
+                    
+                    controller.firebaseFirestore.collection('User').add(
+                      userModel!.toMap()
+                    );
+                  }else {
+                    constance.showSnack('Warning!', 'Please Enter OTP');
+                  }
+                },
+                buttontext: 'Verify',
                 backgroundColor: CustomColor.primary,
                 borderRadius: 35,
               )

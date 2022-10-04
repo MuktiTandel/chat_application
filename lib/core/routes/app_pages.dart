@@ -1,4 +1,5 @@
 import 'package:chat_application/core/routes/app_routes.dart';
+import 'package:chat_application/features/chat/view/chat_screen.dart';
 import 'package:chat_application/features/home/view/home_screen.dart';
 import 'package:chat_application/features/login/view/login_screen.dart';
 import 'package:chat_application/features/otp/view/otp_screen.dart';
@@ -15,7 +16,8 @@ class AppPages {
     GetPage(name: Routes.SPLASH, page: ()=> SplashScreen()),
     GetPage(name: Routes.SIGNUP, page: ()=> SignupScreen()),
     GetPage(name: Routes.HOME, page: ()=> HomeScreen()),
-    GetPage(name: Routes.OTP, page: ()=> OtpScreen())
+    GetPage(name: Routes.OTP, page: ()=> OtpScreen()),
+    GetPage(name: Routes.CHAT, page: ()=> ChatScreen())
   ];
 
 }
