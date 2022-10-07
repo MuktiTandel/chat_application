@@ -199,6 +199,7 @@ class SignupScreen extends StatelessWidget {
                   focusBorderColor: CustomColor.primary,
                   isObscure: controller.IsObsecure1.value,
                   cursorColor: CustomColor.primary,
+                  maxline: 1,
                   suffixWidget: IconButton(
                       onPressed: (){
                         controller.showpassword1();
@@ -230,6 +231,7 @@ class SignupScreen extends StatelessWidget {
                   focusBorderColor: CustomColor.primary,
                   isObscure: controller.IsObsecure2.value,
                   cursorColor: CustomColor.primary,
+                  maxline: 1,
                   suffixWidget: IconButton(
                       onPressed: (){
                         controller.showpassword2();
@@ -258,12 +260,8 @@ class SignupScreen extends StatelessWidget {
                     if(controller.formKey.currentState!.validate()){
                       FocusScope.of(context).unfocus();
 
-                        await firebase_controller.register(controller.email.text, controller.password.text);
-
-                       // await firebase_controller.phone_authentication(controller.complete_number);
-
                       controller.userdata = UserModel(
-                          id: firebase_controller.user!.uid,
+                          id: '0',
                           username: controller.username.text,
                           email: controller.email.text,
                           phonenumber: controller.phoneNumber.text,
@@ -271,7 +269,11 @@ class SignupScreen extends StatelessWidget {
                           image: controller.image.path
                       );
 
-                      databaseController.database.ref('User/user1').set(controller.userdata?.toMap());
+                         await firebase_controller.register(controller.email.text, controller.password.text, controller.userdata!);
+
+                         await firebase_controller.phone_authentication(controller.complete_number);
+
+                      databaseController.database.ref('User').set(controller.userdata?.id);
 
                       constance.Debug('user data => ${controller.userdata?.toMap()}');
                       Get.toNamed(Routes.OTP, arguments: controller.userdata);

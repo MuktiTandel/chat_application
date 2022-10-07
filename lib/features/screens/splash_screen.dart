@@ -1,6 +1,7 @@
 import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/utils/images.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,8 +19,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds:  3), () {
-      Get.offAllNamed(Routes.LOGIN);
+    getpage();
+  }
+
+  Future getpage() async {
+
+    User? user = await FirebaseAuth.instance.currentUser;
+
+    Future.delayed(Duration(seconds: 3), (){
+      if(user == null){
+        Get.offAllNamed(Routes.LOGIN);
+      }else{
+        Get.offAllNamed(Routes.HOME);
+      }
     });
   }
 

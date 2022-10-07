@@ -1,4 +1,6 @@
+import 'package:chat_application/core/controller/database_controller.dart';
 import 'package:chat_application/core/elements/custom_progressbar.dart';
+import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,6 +27,8 @@ class FirebaseController extends GetxController {
   String? VerificationId;
 
   User? user;
+
+  final databaseController = Get.put(DatabaseController());
 
   @override
   void onReady() {
@@ -111,12 +115,23 @@ class FirebaseController extends GetxController {
     }
   }
 
-  Future register(String email, password) async{
+  Future register(String email, password, UserModel userdata) async{
 
     try {
       await auth.createUserWithEmailAndPassword(email: email, password: password);
       user = FirebaseAuth.instance.currentUser;
       constance.Debug('user id => ${user!.uid}');
+      UserModel userModel = UserModel(
+          id: user!.uid,
+          username: userdata.username,
+          email: userdata.email,
+          phonenumber: userdata.phonenumber,
+          password: userdata.password,
+          image: userdata.image
+      );
+      if(user!.uid.isNotEmpty){
+        databaseController.users.doc(user!.uid).set(userModel.toMap());
+      }
     } catch (firebaseAuthException) {
       constance.Debug(firebaseAuthException.toString());
     }
@@ -129,6 +144,8 @@ class FirebaseController extends GetxController {
       phoneNumber: phonenumber,
         verificationCompleted: (PhoneAuthCredential credential) async{
           constance.Debug('Verification Complete ${credential.smsCode}');
+
+          Get.toNamed(Routes.OTP);
         },
         verificationFailed: (FirebaseAuthException e) {
           if(e.code == 'invalid-phone-number'){
@@ -150,6 +167,8 @@ class FirebaseController extends GetxController {
 
   Future verifyOTP(String otp) async{
 
+    constance.Debug('Otp ==> ${otp}');
+
     PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
         verificationId: VerificationId!,
         smsCode: otp
@@ -166,7 +185,7 @@ class FirebaseController extends GetxController {
         // constance.Debug(userCredential.credential!.token.toString());
       } on FirebaseAuthException catch (e) {
         if(e.code == 'provider-already-linked'){
-          // await auth.signInWithCredential(credential);
+          constance.Debug('Error ==> ${e}');
         }
       }
     }

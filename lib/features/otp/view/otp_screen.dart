@@ -1,3 +1,4 @@
+import 'package:chat_application/core/controller/database_controller.dart';
 import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/elements/customColor.dart';
 import 'package:chat_application/core/elements/custombutton.dart';
@@ -35,6 +36,8 @@ class _OtpScreenState extends State<OtpScreen> {
 
   final controller = Get.put(OtpController());
 
+  final databaseController = Get.put(DatabaseController());
+
   Constance constance = Constance();
 
   UserModel? userModel;
@@ -45,7 +48,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
     userModel = Get.arguments;
 
-    constance.Debug('get data => ${Get.arguments}');
+    constance.Debug('get data => ${userModel!.toMap()}');
   }
 
   @override
@@ -87,11 +90,10 @@ class _OtpScreenState extends State<OtpScreen> {
               CustomButton(
                 ontap: () async{
                   if(controller.otp.text.isNotEmpty){
+                    print('${controller.otp.text}');
                     await firebase_controller.verifyOTP(controller.otp.text);
-                    
-                    controller.firebaseFirestore.collection('User').add(
-                      userModel!.toMap()
-                    );
+
+                    // databaseController.users.doc(firebase_controller.user!.uid).set(userModel?.toMap());
                   }else {
                     constance.showSnack('Warning!', 'Please Enter OTP');
                   }

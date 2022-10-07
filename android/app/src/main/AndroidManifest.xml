@@ -6,7 +6,8 @@
    <application
         android:label="Chat application"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_logo">
+        android:icon="@mipmap/ic_logo"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

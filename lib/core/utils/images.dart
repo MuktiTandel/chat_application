@@ -12,5 +12,8 @@ class Images {
   static const String call = 'assets/icons/ic_call.png';
   static const String video = 'assets/icons/ic_video.png';
   static const String smile = 'assets/icons/ic_smile.png';
+  static const String attachment = 'assets/icons/ic_attachment.png';
+  static const String outline_camera = 'assets/icons/ic_camera_.png';
+  static const String microphone = 'assets/icons/ic_microphone.png';
 
 }

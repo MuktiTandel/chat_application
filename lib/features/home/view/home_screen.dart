@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_application/core/elements/custom_title.dart';
 import 'package:chat_application/core/elements/custombutton.dart';
 import 'package:chat_application/core/elements/customcolor.dart';
@@ -34,14 +36,9 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           Container(
-            margin: EdgeInsets.only(right: 15),
+            margin: const EdgeInsets.only(right: 15),
             child: InkWell(
               onTap: (){
-                firestoreInstanc.collection('users').add({
-                  'name' : 'mukti',
-                  'email' : 'mukti@gmail.com',
-                  'password' : 'Mukti@123'
-                });
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -53,7 +50,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Container(width: 14.w,
-            margin: EdgeInsets.only(left: 0, right: 15),
+            margin: const EdgeInsets.only(left: 0, right: 15),
             child: InkWell(
               onTap: (){},
               child: Container(
@@ -69,42 +66,60 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Padding(
         padding:  EdgeInsets.all(4.w),
-        child: InkWell(
-          onTap: (){
-            Get.toNamed(Routes.CHAT);
-          },
-          child: Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black12
-                ),
-                child: ClipOval(
-                  child: SizedBox.fromSize(
-                    size: Size.fromRadius(24),
-                    child: Image.asset(Images.user),
+        child: Obx(() {
+          if(!controller.IsUser.value){
+            return const Center(child: CircularProgressIndicator(
+              color: CustomColor.primary,
+            ));
+          }
+          return (controller.userData.isNotEmpty) ? ListView.builder(
+            itemCount: controller.userData.length,
+              itemBuilder: (BuildContext context, int index){
+                return InkWell(
+                  onTap: (){
+                    Get.toNamed(Routes.CHAT, arguments: controller.userData[index]);
+                  },
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black12
+                            ),
+                            child: ClipOval(
+                              child: SizedBox.fromSize(
+                                size: const Size.fromRadius(24),
+                                child:  Image.file(File(controller.userData[index].image), fit: BoxFit.fill,),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 5.w,),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomText(
+                                text: controller.userData[index].username,
+                                fontsize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              const CustomText(
+                                text: 'last message',
+                                color: Colors.black45,
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 1.5.h,)
+                    ],
                   ),
-                ),
-              ),
-              SizedBox(width: 5.w,),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomText(
-                      text: 'user name',
-                    fontsize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  CustomText(
-                      text: 'last message',
-                    color: Colors.black45,
-                  )
-                ],
-              )
-            ],
-          ),
-        )
+                );
+              }
+          ) : nochat();
+        })
       ),
     );
   }
@@ -128,11 +143,11 @@ class HomeScreen extends StatelessWidget {
                   Container(
                     height: 4.h,
                     width: 8.w,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white
                     ),
-                    child: Icon(Icons.check_rounded, color: CustomColor.primary,),
+                    child: const Icon(Icons.check_rounded, color: CustomColor.primary,),
                   )
                 ]
             ),

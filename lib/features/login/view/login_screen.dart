@@ -62,6 +62,7 @@ class LoginScreen extends StatelessWidget {
                     isObscure: controller.IsObscure.value,
                     prefixiconColor: CustomColor.primary,
                     focusBorderColor: CustomColor.primary,
+                    maxline: 1,
                     suffixWidget: IconButton(
                         onPressed: (){
                           controller.showpassword();

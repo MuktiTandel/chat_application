@@ -17,7 +17,8 @@ class CustomTextformfield extends StatelessWidget {
     this.isObscure = false,
     this.focusBorderColor,
     this.cursorColor,
-    this.prefixWidget
+    this.prefixWidget,
+    this.maxline
   }) : _validator = validator,
       _onchange = onchange,
         super(key: key);
@@ -35,6 +36,7 @@ class CustomTextformfield extends StatelessWidget {
   final Color? focusBorderColor;
   final Color? cursorColor;
   final Widget? prefixWidget;
+  final int? maxline;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,8 @@ class CustomTextformfield extends StatelessWidget {
       controller: controller,
       obscureText: isObscure ?? false,
       cursorColor: cursorColor ?? Colors.black,
+      minLines: 1,
+      maxLines: maxline ?? 10,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(border_radius ?? 10),
