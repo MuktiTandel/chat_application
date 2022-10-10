@@ -7,8 +7,6 @@ class LoginController extends GetxController{
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
-  final formKey1 = GlobalKey<FormState>();
-
   RxBool IsObscure  = true.obs;
 
   @override

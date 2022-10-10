@@ -15,5 +15,6 @@ class Images {
   static const String attachment = 'assets/icons/ic_attachment.png';
   static const String outline_camera = 'assets/icons/ic_camera_.png';
   static const String microphone = 'assets/icons/ic_microphone.png';
+  static const String send = 'assets/icons/ic_send.png';
 
 }

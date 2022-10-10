@@ -28,6 +28,8 @@ class ChatController extends GetxController {
   bool isStricker = false;
   String imageUrl = '';
 
+  RxBool IsSend = false.obs;
+
   final ScrollController scrollController = ScrollController();
 
   _scrollListner() {
@@ -115,6 +117,10 @@ class ChatController extends GetxController {
       message.clear();
       sendMessage(content, type, groupChatId, currentUserId, peerid);
     }
+  }
+
+  void messageSend() {
+    !IsSend.value;
   }
 
 }

@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/utils/constance.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 
 class SignupController extends GetxController{
 
@@ -32,6 +34,10 @@ class SignupController extends GetxController{
 
   UserModel? userdata;
 
+  FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+
+  String? imageUrl;
+
   @override
   void dispose() {
     username.dispose();
@@ -50,13 +56,33 @@ class SignupController extends GetxController{
     IsObsecure2(!IsObsecure2.value);
   }
 
-  void checkImage() {
+  void checkImage() async{
 
-    if(picImage!.path.isNotEmpty){
+    if(picImage!.path.isNotEmpty) {
       IsImage(!IsImage.value);
       image = File(picImage!.path);
+      await uploadFile();
     }else {
       constance.Debug("pic image is empty");
+    }
+  }
+
+  Future uploadFile() async {
+
+    String fileName = basename(image.path);
+
+    String destination = 'files/${fileName}';
+
+    try {
+      final ref = firebaseStorage.ref(destination).child('file/');
+
+      await ref.putFile(image);
+
+      imageUrl = await ref.getDownloadURL();
+
+      constance.Debug('Image url => ${url}');
+    } catch (e) {
+      print(e);
     }
   }
 

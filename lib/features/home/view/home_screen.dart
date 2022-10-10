@@ -6,6 +6,7 @@ import 'package:chat_application/core/elements/customtext.dart';
 import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
+import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:chat_application/core/utils/images.dart';
 import 'package:chat_application/features/home/controller/home_controller.dart';
@@ -21,6 +22,8 @@ class HomeScreen extends StatelessWidget {
   final firestoreInstanc = FirebaseFirestore.instance;
 
   int _limit = 20;
+
+  Constance constance = Constance();
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +150,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget listview(DocumentSnapshot snapshot) {
     UserModel userData = UserModel.fromDocument(snapshot);
+    constance.Debug('User data => ${userData.toMap()}');
     return InkWell(
       onTap: (){
         Get.toNamed(Routes.CHAT, arguments: userData);
@@ -161,7 +165,7 @@ class HomeScreen extends StatelessWidget {
             child: ClipOval(
               child: SizedBox.fromSize(
                 size: const Size.fromRadius(24),
-                child:  Image.network(userData.image, fit: BoxFit.fill,),
+                child: Image.network(userData.image, fit: BoxFit.fill,),
               ),
             ),
           ),

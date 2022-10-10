@@ -266,7 +266,7 @@ class SignupScreen extends StatelessWidget {
                           email: controller.email.text,
                           phonenumber: controller.phoneNumber.text,
                           password: controller.password.text,
-                          image: controller.image.path
+                          image: controller.imageUrl!
                       );
 
                          await firebase_controller.register(controller.email.text, controller.password.text, controller.userdata!);

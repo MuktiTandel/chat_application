@@ -30,7 +30,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
 
-    getData();
+     // getData();
 
   }
 

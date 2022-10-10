@@ -18,6 +18,8 @@ class LoginScreen extends StatelessWidget {
 
   final firebase_controller = Get.put(FirebaseController());
 
+   final formKey1 = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +28,7 @@ class LoginScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Form(
-              key: controller.formKey1,
+              key: formKey1,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -86,7 +88,7 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 3.h,),
                   CustomButton(
                     ontap: () async{
-                      if(controller.formKey1.currentState!.validate()){
+                      if(formKey1.currentState!.validate()){
                         FocusScope.of(context).unfocus();
 
                         firebase_controller.login(controller.email.text, controller.password.text);
