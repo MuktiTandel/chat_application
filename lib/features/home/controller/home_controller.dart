@@ -1,9 +1,11 @@
-import 'dart:convert';
 
 import 'package:chat_application/core/controller/database_controller.dart';
 import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/utils/constance.dart';
+import 'package:chat_application/core/utils/firebase_constant.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
@@ -19,6 +21,10 @@ class HomeController extends GetxController {
   final userlist = [];
 
   List<UserModel> userData = [];
+
+   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+  TextEditingController search = TextEditingController();
 
   @override
   void onInit() {
@@ -47,6 +53,22 @@ class HomeController extends GetxController {
       IsUser(!IsUser.value);
     }
 
+  }
+  
+  Stream<QuerySnapshot> getFireStoreData(
+      String collectionPath, int limit, String? textSearch) {
+    if(textSearch?.isNotEmpty == true){
+      return firebaseFirestore
+          .collection(collectionPath)
+          .limit(limit)
+          .where(FirebaseConstant.username, isEqualTo: textSearch)
+          .snapshots();
+    }else {
+      return firebaseFirestore
+          .collection(collectionPath)
+          .limit(limit)
+          .snapshots();
+    }
   }
 
 }

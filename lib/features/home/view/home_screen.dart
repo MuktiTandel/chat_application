@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:chat_application/core/elements/custom_title.dart';
 import 'package:chat_application/core/elements/custombutton.dart';
 import 'package:chat_application/core/elements/customcolor.dart';
 import 'package:chat_application/core/elements/customtext.dart';
+import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
+import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:chat_application/core/utils/images.dart';
 import 'package:chat_application/features/home/controller/home_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,6 +19,8 @@ class HomeScreen extends StatelessWidget {
   final controller = Get.put(HomeController());
 
   final firestoreInstanc = FirebaseFirestore.instance;
+
+  int _limit = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -66,60 +69,30 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Padding(
         padding:  EdgeInsets.all(4.w),
-        child: Obx(() {
-          if(!controller.IsUser.value){
-            return const Center(child: CircularProgressIndicator(
-              color: CustomColor.primary,
-            ));
-          }
-          return (controller.userData.isNotEmpty) ? ListView.builder(
-            itemCount: controller.userData.length,
-              itemBuilder: (BuildContext context, int index){
-                return InkWell(
-                  onTap: (){
-                    Get.toNamed(Routes.CHAT, arguments: controller.userData[index]);
-                  },
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black12
-                            ),
-                            child: ClipOval(
-                              child: SizedBox.fromSize(
-                                size: const Size.fromRadius(24),
-                                child:  Image.file(File(controller.userData[index].image), fit: BoxFit.fill,),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5.w,),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                text: controller.userData[index].username,
-                                fontsize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              const CustomText(
-                                text: 'last message',
-                                color: Colors.black45,
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 1.5.h,)
-                    ],
-                  ),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: controller.getFireStoreData(FirebaseConstant.pathUserCollection, _limit, controller.search.text),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+              if(snapshot.hasData){
+                if((snapshot.data?.docs.length ?? 0) > 0){
+                  return ListView.separated(
+                    shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index){
+                        return listview(snapshot.data!.docs[index]);
+                      },
+                      separatorBuilder: (BuildContext context, int index){
+                        return SizedBox(height: 2.h,);
+                      },
+                      itemCount: snapshot.data!.docs.length
+                  );
+                } else {
+                  return nochat();
+                }
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(color: CustomColor.primary,),
                 );
               }
-          ) : nochat();
-        })
+            })
       ),
     );
   }
@@ -169,6 +142,47 @@ class HomeScreen extends StatelessWidget {
             )
           ],
         )
+    );
+  }
+
+  Widget listview(DocumentSnapshot snapshot) {
+    UserModel userData = UserModel.fromDocument(snapshot);
+    return InkWell(
+      onTap: (){
+        Get.toNamed(Routes.CHAT, arguments: userData);
+      },
+      child: Row(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black12
+            ),
+            child: ClipOval(
+              child: SizedBox.fromSize(
+                size: const Size.fromRadius(24),
+                child:  Image.network(userData.image, fit: BoxFit.fill,),
+              ),
+            ),
+          ),
+          SizedBox(width: 5.w,),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(
+                text: userData.username,
+                fontsize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              const CustomText(
+                text: 'last message',
+                color: Colors.black45,
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 }
