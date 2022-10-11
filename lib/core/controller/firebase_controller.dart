@@ -3,10 +3,13 @@ import 'package:chat_application/core/elements/custom_progressbar.dart';
 import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/utils/constance.dart';
+import 'package:chat_application/core/utils/firebase_constant.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseController extends GetxController {
 
@@ -29,6 +32,14 @@ class FirebaseController extends GetxController {
   User? user;
 
   final databaseController = Get.put(DatabaseController());
+
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+  SharedPreferences? preferences;
+
+  String? getFirebaseUserId() {
+    return preferences?.getString(FirebaseConstant.id);
+  }
 
   @override
   void onReady() {
@@ -82,8 +93,40 @@ class FirebaseController extends GetxController {
           idToken: googleSignInAuthentication.idToken
         );
 
-        await auth.signInWithCredential(credential)
-          .catchError((onErr) => constance.Debug(onErr));
+       User? firebaseUser =  (await auth.signInWithCredential(credential)).user;
+
+       if(firebaseUser != null){
+         final QuerySnapshot result = await firebaseFirestore
+             .collection(FirebaseConstant.pathUserCollection)
+             .where(FirebaseConstant.id, isEqualTo: firebaseUser.uid)
+             .get();
+         final List<DocumentSnapshot> document = result.docs;
+         if(document.isEmpty) {
+           firebaseFirestore
+              .collection(FirebaseConstant.pathUserCollection)
+               .doc(firebaseUser.uid)
+               .set({
+             FirebaseConstant.username : firebaseUser.displayName,
+             FirebaseConstant.image : firebaseUser.photoURL,
+             FirebaseConstant.id : firebaseUser.uid,
+             'createdAt' : DateTime.now().millisecondsSinceEpoch.toString(),
+             FirebaseConstant.chattingWith : null
+           });
+
+           User? currentUser = firebaseUser;
+           await preferences?.setString(FirebaseConstant.id, currentUser.uid);
+           await preferences?.setString(FirebaseConstant.username, currentUser.displayName ?? '');
+           await preferences?.setString(FirebaseConstant.image, currentUser.photoURL ?? '');
+           await preferences?.setString(FirebaseConstant.phonenumber, currentUser.phoneNumber ?? '');
+         } else {
+           DocumentSnapshot documentSnapshot = document[0];
+           UserModel userModel = UserModel.fromDocument(documentSnapshot);
+           await preferences?.setString(FirebaseConstant.id, userModel.id);
+           await preferences?.setString(FirebaseConstant.username, userModel.username);
+           await preferences?.setString(FirebaseConstant.image, userModel.image);
+           await preferences?.setString(FirebaseConstant.phonenumber, userModel.phonenumber);
+         }
+       }
 
         Get.offAllNamed(Routes.HOME);
 

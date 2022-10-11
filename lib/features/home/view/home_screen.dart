@@ -165,7 +165,8 @@ class HomeScreen extends StatelessWidget {
             child: ClipOval(
               child: SizedBox.fromSize(
                 size: const Size.fromRadius(24),
-                child: Image.network(userData.image, fit: BoxFit.fill,),
+                child: userData.image.isNotEmpty ? Image.network(userData.image, fit: BoxFit.fill,)
+                    : Image.asset(Images.user, fit: BoxFit.cover,),
               ),
             ),
           ),

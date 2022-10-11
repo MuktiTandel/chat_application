@@ -14,8 +14,8 @@ class Constance {
     Get.snackbar(title, message);
   }
 
-  static const text = 0;
-  static const images = 1;
-  static const sticker = 2;
+  static const int text = 0;
+  static const int images = 1;
+  static const int sticker = 2;
 
 }

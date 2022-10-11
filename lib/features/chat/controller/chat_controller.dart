@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,7 +19,7 @@ class ChatController extends GetxController {
 
   List<QueryDocumentSnapshot> listMessages = [];
 
-  int _limit = 20;
+  int limit = 20;
   final int _limitIncrement = 20;
   String groupChatId = '';
   String currentUserId = '';
@@ -34,7 +35,7 @@ class ChatController extends GetxController {
 
   _scrollListner() {
     if(scrollController.offset >= scrollController.position.maxScrollExtent && !scrollController.position.outOfRange){
-      _limit += _limitIncrement;
+      limit += _limitIncrement;
       update();
     }
   }
@@ -115,12 +116,27 @@ class ChatController extends GetxController {
   void OnMessageSend(String content, int type, String peerid) {
     if(content.trim().isNotEmpty){
       message.clear();
-      sendMessage(content, type, groupChatId, currentUserId, peerid);
+      sendMessage(content, type, peerid, peerid, peerid);
     }
   }
 
   void messageSend() {
     !IsSend.value;
+  }
+
+  bool isMessageRecived(int index) {
+    if((index > 0 && listMessages[index - 1].get(FirebaseConstant.idFrom) == currentUserId) || index == 0){
+      return true;
+    }
+    return false;
+  }
+
+
+  bool isMessageSend(int index) {
+    if((index > 0 && listMessages[index - 1].get(FirebaseConstant.idFrom) != currentUserId) || index == 0){
+      return true;
+    }
+    return false;
   }
 
 }

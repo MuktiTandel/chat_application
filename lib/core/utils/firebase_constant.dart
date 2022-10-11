@@ -13,5 +13,6 @@ class FirebaseConstant {
   static const timeStemp = 'timeStemp';
   static const content = 'content';
   static const type = 'type';
+  static const chattingWith = 'chattingWith';
 
 }

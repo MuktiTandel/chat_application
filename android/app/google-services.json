@@ -15,13 +15,21 @@
       },
       "oauth_client": [
         {
+          "client_id": "540980736035-lfrqsj1riblg0333m0qtvn1a2t1a1k2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chat_application",
+            "certificate_hash": "99414d2b8820b87030690406be4f9aa23641c2a6"
+          }
+        },
+        {
           "client_id": "540980736035-bfj47nivqnt83ha0goop8ch3hmsvo2e4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCGFOSfKdHL0AU9hEZ5Rpt4oFfEfvNCIUY"
+          "current_key": "AIzaSyAILZP1C-AqRf5gAymI7uyQ5mNDdUCIR_A"
         }
       ],
       "services": {
