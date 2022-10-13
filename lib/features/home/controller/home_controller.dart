@@ -5,6 +5,7 @@ import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
@@ -26,12 +27,27 @@ class HomeController extends GetxController {
 
   TextEditingController search = TextEditingController();
 
+  late String currentUserId;
+
   @override
   void onInit() {
     super.onInit();
 
      // getData();
 
+    getCurrentUser();
+
+  }
+
+  Future getCurrentUser() async {
+
+    User? user = await FirebaseAuth.instance.currentUser;
+
+    currentUserId = user!.uid;
+
+    update();
+
+    constance.Debug('Current user => ${currentUserId}');
   }
 
   Future getData() async{

@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:chat_application/core/controller/firebase_controller.dart';
+import 'package:chat_application/core/routes/app_routes.dart';
+import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,27 +25,41 @@ class ChatController extends GetxController {
   List<QueryDocumentSnapshot> listMessages = [];
 
   int limit = 20;
-  final int _limitIncrement = 20;
+  final int limitIncrement = 20;
   String groupChatId = '';
   String currentUserId = '';
 
   File? imageFile;
+  File? videoFile;
   bool isLoading = false;
   bool isStricker = false;
   String imageUrl = '';
+  String videoUrl = '';
 
   RxBool IsSend = false.obs;
 
-  final ScrollController scrollController = ScrollController();
+  final firebase_controller = Get.put(FirebaseController());
 
-  _scrollListner() {
-    if(scrollController.offset >= scrollController.position.maxScrollExtent && !scrollController.position.outOfRange){
-      limit += _limitIncrement;
-      update();
-    }
+  Constance constance = Constance();
+
+  Future getCurrentUser() async {
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    currentUserId = user!.uid;
+
+    update();
+
+    constance.Debug('Current user => $currentUserId');
   }
 
   UploadTask uploadImage(File file, String filename) {
+    Reference reference = firebaseStorage.ref().child(filename);
+    UploadTask uploadTask = reference.putFile(file);
+    return uploadTask;
+  }
+
+  UploadTask uploadVideo(File file, String filename) {
     Reference reference = firebaseStorage.ref().child(filename);
     UploadTask uploadTask = reference.putFile(file);
     return uploadTask;
@@ -87,13 +106,24 @@ class ChatController extends GetxController {
   Future getImage() async {
     ImagePicker picker = ImagePicker();
     XFile? picFile;
-    picFile = await picker.pickImage(source: ImageSource.gallery);
+    picFile = await picker.pickImage(source: ImageSource.camera);
     if(picFile != null){
       imageFile = File(picFile.path);
       if(imageFile != null){
         isLoading = true;
         update();
+        uploadImageFile();
       }
+    }
+  }
+
+  Future getVideo() async {
+    ImagePicker picker = ImagePicker();
+    XFile? picFile;
+    picFile = await picker.pickVideo(source: ImageSource.camera);
+    if(picFile != null){
+      videoFile = File(picFile.path);
+      uploadVideoFile();
     }
   }
 
@@ -105,18 +135,39 @@ class ChatController extends GetxController {
       TaskSnapshot taskSnapshot = await uploadTask;
       imageUrl = await taskSnapshot.ref.getDownloadURL();
       isLoading = false;
+      OnMessageSend(imageUrl, Constance.images, currentUserId);
       update();
     } on FirebaseException catch (e) {
       isLoading = false;
       update();
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  void uploadVideoFile() async {
+
+    String filename = DateTime.now().millisecondsSinceEpoch.toString();
+    UploadTask uploadTask = uploadVideo(videoFile!, filename);
+    try {
+      TaskSnapshot taskSnapshot = await uploadTask;
+      videoUrl = await taskSnapshot.ref.getDownloadURL();
+      OnMessageSend(videoUrl, Constance.video, currentUserId);
+      update();
+    } on FirebaseException catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   void OnMessageSend(String content, int type, String peerid) {
+    constance.Debug('group chat id => $groupChatId');
+    constance.Debug('current user Id => $currentUserId');
     if(content.trim().isNotEmpty){
       message.clear();
-      sendMessage(content, type, peerid, peerid, peerid);
+      sendMessage(content, type, groupChatId, currentUserId, peerid);
     }
   }
 
@@ -137,6 +188,20 @@ class ChatController extends GetxController {
       return true;
     }
     return false;
+  }
+
+  void readLocal(String id) {
+    if(currentUserId.compareTo(id) > 0 ){
+      groupChatId = '$currentUserId - $id';
+      constance.Debug('Group chat id => $groupChatId');
+    } else {
+      groupChatId = '$id - $currentUserId';
+      constance.Debug('Group id => $groupChatId');
+    }
+
+    updateData(FirebaseConstant.pathUserCollection, id, {
+      FirebaseConstant.chattingWith : id
+    });
   }
 
 }

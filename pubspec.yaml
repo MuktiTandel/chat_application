@@ -50,6 +50,8 @@ dependencies:
   cloud_firestore: ^3.5.0
   shared_preferences: ^2.0.15
   path: ^1.8.2
+  intl: ^0.17.0
+  video_player: ^2.4.7
 
 dev_dependencies:
   flutter_test:

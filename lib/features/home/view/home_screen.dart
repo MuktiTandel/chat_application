@@ -78,12 +78,14 @@ class HomeScreen extends StatelessWidget {
               if(snapshot.hasData){
                 if((snapshot.data?.docs.length ?? 0) > 0){
                   return ListView.separated(
+                    physics: const BouncingScrollPhysics(),
                     shrinkWrap: true,
+                      padding: EdgeInsets.zero,
                       itemBuilder: (BuildContext context, int index){
                         return listview(snapshot.data!.docs[index]);
                       },
                       separatorBuilder: (BuildContext context, int index){
-                        return SizedBox(height: 2.h,);
+                         return SizedBox(height: 1.h,);
                       },
                       itemCount: snapshot.data!.docs.length
                   );
@@ -149,45 +151,53 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget listview(DocumentSnapshot snapshot) {
-    UserModel userData = UserModel.fromDocument(snapshot);
-    constance.Debug('User data => ${userData.toMap()}');
-    return InkWell(
-      onTap: (){
-        Get.toNamed(Routes.CHAT, arguments: userData);
-      },
-      child: Row(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black12
-            ),
-            child: ClipOval(
-              child: SizedBox.fromSize(
-                size: const Size.fromRadius(24),
-                child: userData.image.isNotEmpty ? Image.network(userData.image, fit: BoxFit.fill,)
-                    : Image.asset(Images.user, fit: BoxFit.cover,),
-              ),
-            ),
-          ),
-          SizedBox(width: 5.w,),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    if(snapshot != null){
+      UserModel userData = UserModel.fromDocument(snapshot);
+      if(userData.id != controller.currentUserId){
+        constance.Debug('User data => ${userData.toMap()}');
+        return InkWell(
+          onTap: (){
+            Get.toNamed(Routes.CHAT, arguments: userData);
+          },
+          child: Row(
             children: [
-              CustomText(
-                text: userData.username,
-                fontsize: 14.sp,
-                fontWeight: FontWeight.w600,
+              Container(
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black12
+                ),
+                child: ClipOval(
+                  child: SizedBox.fromSize(
+                    size: const Size.fromRadius(24),
+                    child: userData.image.isNotEmpty ? Image.network(userData.image, fit: BoxFit.fill,)
+                        : Image.asset(Images.user, fit: BoxFit.cover,),
+                  ),
+                ),
               ),
-              const CustomText(
-                text: 'last message',
-                color: Colors.black45,
+              SizedBox(width: 5.w,),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: userData.username,
+                    fontsize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  const CustomText(
+                    text: 'last message',
+                    color: Colors.black45,
+                  )
+                ],
               )
             ],
-          )
-        ],
-      ),
-    );
+          ),
+        );
+      } else {
+        return const SizedBox.shrink();
+      }
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 }

@@ -17,5 +17,6 @@ class Constance {
   static const int text = 0;
   static const int images = 1;
   static const int sticker = 2;
+  static const int video = 3;
 
 }
