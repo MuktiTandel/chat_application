@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:chat_application/core/controller/firebase_controller.dart';
-import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/firebase_constant.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,7 @@ class ChatController extends GetxController {
   bool isStricker = false;
   String imageUrl = '';
   String videoUrl = '';
+  String fileUrl = '';
 
   RxBool IsSend = false.obs;
 
@@ -117,6 +119,18 @@ class ChatController extends GetxController {
     }
   }
 
+  Future getImagefromGallery() async {
+    ImagePicker picker = ImagePicker();
+    XFile? picFile;
+    picFile = await picker.pickImage(source: ImageSource.gallery);
+    if(picFile != null){
+      imageFile = File(picFile.path);
+      if(imageFile != null){
+        uploadImageFile();
+      }
+    }
+  }
+
   Future getVideo() async {
     ImagePicker picker = ImagePicker();
     XFile? picFile;
@@ -172,7 +186,8 @@ class ChatController extends GetxController {
   }
 
   void messageSend() {
-    !IsSend.value;
+    IsSend(!IsSend.value);
+    update();
   }
 
   bool isMessageRecived(int index) {
@@ -202,6 +217,68 @@ class ChatController extends GetxController {
     updateData(FirebaseConstant.pathUserCollection, id, {
       FirebaseConstant.chattingWith : id
     });
+  }
+
+  Future UploadVideo() async {
+
+    try {
+      final DateTime now = DateTime.now();
+      final int millSeconds = now.millisecondsSinceEpoch;
+      final String month = now.month.toString();
+      final String date = now.day.toString();
+      final String storageId = (millSeconds.toString() + currentUserId);
+      final String today = ('$month - $date');
+
+      final file = await ImagePicker.platform.pickVideo(source: ImageSource.camera);
+
+      if(file != null){
+            videoFile = File(file.path);
+          }
+
+      Reference reference = FirebaseStorage.instance.ref().child('Video').child(today).child(storageId);
+      UploadTask uploadTask = reference.putFile(videoFile!, SettableMetadata(contentType: 'video/mp4'));
+
+      TaskSnapshot taskSnapshot = await uploadTask;
+      videoUrl = await taskSnapshot.ref.getDownloadURL();
+      OnMessageSend(videoUrl, Constance.video, currentUserId);
+      update();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  Future getPdfAndUpload() async {
+    String filename = DateTime
+        .now()
+        .millisecondsSinceEpoch
+        .toString();
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    File? picFile;
+
+    if(result != null){
+      picFile = File(result.files.single.path!);
+    }
+
+    Reference reference = firebaseStorage.ref().child(filename);
+    UploadTask uploadTask = reference.putFile(picFile!);
+
+    try {
+      TaskSnapshot taskSnapshot = await uploadTask;
+      fileUrl = await taskSnapshot.ref.getDownloadURL();
+      isLoading = false;
+      OnMessageSend(fileUrl, Constance.file, currentUserId);
+      update();
+    } on FirebaseException catch (e) {
+      isLoading = false;
+      update();
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 
 }

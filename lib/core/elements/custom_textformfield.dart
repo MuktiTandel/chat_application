@@ -63,7 +63,7 @@ class CustomTextformfield extends StatelessWidget {
         errorText: errortext
       ),
       validator: (val) => _validator!(val!),
-      onChanged: (val) => _onchange ?? {},
+      onChanged: (val) => _onchange!(val) ?? {},
     );
   }
 }

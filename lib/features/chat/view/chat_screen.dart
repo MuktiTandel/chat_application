@@ -32,6 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   VideoPlayerController? videoPlayerController;
 
+  bool IsMessage = false;
+
   @override
   void initState() {
     super.initState();
@@ -143,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     buildListMessage(),
                     SizedBox(height: 2.h,),
-                    buildMessageView()
+                    buildMessageView(context)
                   ],
                 ),
               ),
@@ -154,65 +156,80 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget buildMessageView() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-            child: CustomTextformfield(
-              controller: controller.message,
-              Autofocus: false,
-              border_radius: 15,
-              focusBorderColor: Colors.black26,
-              prefixWidget: InkWell(
-                onTap: (){},
-                child: Image.asset(Images.smile, scale: 22,),
-              ),
-              suffixWidget: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                    onTap: (){
-                      controller.getVideo();
-                    },
-                    child: Image.asset(Images.attachment, height: 3.h, width: 6.w,),
+  Widget buildMessageView(BuildContext context) {
+    return GetBuilder<ChatController>(
+      builder: (Controller) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+                child: CustomTextformfield(
+                  controller: controller.message,
+                  Autofocus: false,
+                  border_radius: 15,
+                  focusBorderColor: Colors.black26,
+                  prefixWidget: InkWell(
+                    onTap: (){},
+                    child: Image.asset(Images.smile, scale: 22,),
                   ),
-                  SizedBox(width: 2.w,),
-                  InkWell(
-                    onTap: (){
-                      controller.getImage();
-                    },
-                    child: Image.asset(Images.outline_camera, height: 3.h, width: 6.w,),
+                  suffixWidget: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: (){
+                          // controller.UploadVideo();
+                          showGeneralDialog(context: context,
+                              barrierColor: Colors.transparent,
+                              pageBuilder: (context, anim1, anim2){
+                            return showBottomDialog();
+                          });
+                        },
+                        child: Image.asset(Images.attachment, height: 3.h, width: 6.w,),
+                      ),
+                      SizedBox(width: 2.w,),
+                      InkWell(
+                        onTap: (){
+                          controller.getImage();
+                        },
+                        child: Image.asset(Images.outline_camera, height: 3.h, width: 6.w,),
+                      ),
+                      SizedBox(width: 3.w,)
+                    ],
                   ),
-                  SizedBox(width: 3.w,)
-                ],
-              ),
-              onchange: (val) {
-                if(val.isNotEmpty){
-                }
+                  onchange: (val) {
+                    if(val.isNotEmpty || val != null){
+                      IsMessage = true;
+                    }else if(val.isEmpty || val == null){
+                      IsMessage = false;
+                    }
+                    setState(() {
+
+                    });
+                  },
+                )),
+            SizedBox(width: 2.w,),
+            InkWell(
+              onTap: (){
+                controller.OnMessageSend(controller.message.text, Constance.text, userModel!.id);
               },
-            )),
-        SizedBox(width: 2.w,),
-        InkWell(
-          onTap: (){
-            controller.OnMessageSend(controller.message.text, Constance.text, userModel!.id);
-          },
-          child: Container(
-            height: 6.h,
-            width: 12.w,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                gradient: LinearGradient(colors: [
-                  CustomColor.primary.withOpacity(0.5),
-                  CustomColor.primary
-                ])
-            ),
-            child: Center(
-              child: Image.asset(Images.send, height: 3.h, width: 6.w, color: Colors.white,),
-            ),
-          ),
-        )
-      ],
+              child: Container(
+                height: 6.h,
+                width: 12.w,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(colors: [
+                      CustomColor.primary.withOpacity(0.5),
+                      CustomColor.primary
+                    ])
+                ),
+                child: Center(
+                  child: Image.asset(IsMessage ? Images.send : Images.microphone, height: 3.h, width: 6.w, color: Colors.white,),
+                ),
+              ),
+            )
+          ],
+        );
+      }
     );
   }
 
@@ -227,7 +244,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     if(controller.listMessages.isNotEmpty){
                       return ListView.builder(
                         reverse: true,
-                          physics: BouncingScrollPhysics(),
+                          physics: const BouncingScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: snapshot.data!.docs.length,
                           controller: scrollController,
@@ -262,8 +279,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if(documentSnapshot != null){
       ChatModel chatModel = ChatModel.fromDocument(documentSnapshot);
       String date = chatModel.timeStemp;
-      final f = new DateFormat('HH:mm');
-      String time = f.format(new DateTime.fromMillisecondsSinceEpoch(int.parse(date)));
+      final f = DateFormat('HH:mm');
+      String time = f.format(DateTime.fromMillisecondsSinceEpoch(int.parse(date)));
       if(chatModel.idFrom == controller.currentUserId){
         return chatModel.type == Constance.text ?
         messageBubble(chatModel.content, EdgeInsets.only(right: 4.w), CustomColor.message_bubble, time) :
@@ -280,7 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
         messageBubble(chatModel.content, EdgeInsets.only(left: 20.w), CustomColor.primary.withOpacity(0.1), time) :
         chatModel.type == Constance.images ?
         Container(
-          margin: EdgeInsets.only(left: 190),
+          margin: const EdgeInsets.only(left: 190),
           child: chatImage(chatModel.content, CustomColor.primary.withOpacity(0.5), time),
         ) : chatModel.type == Constance.video ? Container(
           margin: EdgeInsets.only(top: 1.h),
@@ -318,7 +335,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget chatImage(String imageUrl, Color color, String time){
     return Container(
-      padding: EdgeInsets.all(3),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(15)
@@ -354,11 +371,11 @@ class _ChatScreenState extends State<ChatScreen> {
     constance.Debug('Video Url => $videoUrl}');
     videoPlayerController = VideoPlayerController.network(videoUrl)..initialize().then((value) {
       setState(() {
-         videoPlayerController!.play();
+          videoPlayerController!.play();
       });
     } );
     return Container(
-      padding: EdgeInsets.all(3),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(15)
@@ -384,6 +401,67 @@ class _ChatScreenState extends State<ChatScreen> {
                 )
             )
           ]
+      ),
+    );
+  }
+
+  Widget showBottomDialog() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 30.h,
+        margin: EdgeInsets.only(bottom: 80, left: 12, right: 12),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.black12,width: 0.5.w)
+        ),
+        child: GridView.count(
+            crossAxisCount: 3,
+          padding: EdgeInsets.only(top: 1.h),
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+           dialogItem((){
+             controller.getPdfAndUpload();
+           }, Images.document, 'Document'),
+           dialogItem((){
+             controller.getImage();
+           }, Images.outline_camera, 'Camera'),
+           dialogItem((){
+             controller.getImagefromGallery();
+           }, Images.outline_gallery, 'Gallery'),
+           dialogItem((){}, Images.audio, 'Audio'),
+           dialogItem((){}, Images.location, 'Location'),
+           dialogItem((){}, Images.contact, 'Contact'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget dialogItem(Function ontap, String image, String title) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: (){
+          Get.back();
+          ontap();
+        },
+        child: Column(
+          children: [
+            Container(
+              height: 9.h,
+              width: 18.w,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: CustomColor.primary.withOpacity(0.1)
+              ),
+              child: Image.asset(image, color: CustomColor.primary, scale: 15,),
+            ),
+            SizedBox(height: 0.5.h,),
+            CustomText(text: title)
+          ],
+        ),
       ),
     );
   }

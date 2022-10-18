@@ -16,5 +16,10 @@ class Images {
   static const String outline_camera = 'assets/icons/ic_camera_.png';
   static const String microphone = 'assets/icons/ic_microphone.png';
   static const String send = 'assets/icons/ic_send.png';
+  static const String document = 'assets/icons/ic_document.png';
+  static const String outline_gallery = 'assets/icons/ic_gallery_.png';
+  static const String audio = 'assets/icons/ic_audio.png';
+  static const String location = 'assets/icons/ic_location.png';
+  static const String contact = 'assets/icons/ic_contact.png';
 
 }
