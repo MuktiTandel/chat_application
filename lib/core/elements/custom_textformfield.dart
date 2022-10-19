@@ -1,5 +1,4 @@
-import 'package:chat_application/core/elements/customColor.dart';
-import 'package:chat_application/core/sizer/sizer.dart';
+
 import 'package:flutter/material.dart';
 
 class CustomTextformfield extends StatelessWidget {

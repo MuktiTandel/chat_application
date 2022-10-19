@@ -42,6 +42,7 @@ class LoginScreen extends StatelessWidget {
                     focusBorderColor: CustomColor.primary,
                     cursorColor: CustomColor.primary,
                     border_radius: 35,
+                    onchange: (val){},
                     validator: (val){
                       String pattern =
                           r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
@@ -65,6 +66,7 @@ class LoginScreen extends StatelessWidget {
                     prefixiconColor: CustomColor.primary,
                     focusBorderColor: CustomColor.primary,
                     maxline: 1,
+                    onchange: (val){},
                     suffixWidget: IconButton(
                         onPressed: (){
                           controller.showpassword();

@@ -21,5 +21,6 @@ class Images {
   static const String audio = 'assets/icons/ic_audio.png';
   static const String location = 'assets/icons/ic_location.png';
   static const String contact = 'assets/icons/ic_contact.png';
+  static const String pdf = 'assets/icons/ic_pdf.png';
 
 }

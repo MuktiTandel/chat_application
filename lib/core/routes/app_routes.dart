@@ -6,5 +6,6 @@ abstract class Routes {
   static const HOME = '/home';
   static const OTP = '/otp';
   static const CHAT = '/chat';
+  static const CONTACT = '/contact';
 
 }

@@ -1,16 +1,21 @@
+import 'package:chat_application/core/elements/control_button.dart';
 import 'package:chat_application/core/elements/custom_textformfield.dart';
 import 'package:chat_application/core/elements/customcolor.dart';
 import 'package:chat_application/core/elements/customtext.dart';
+import 'package:chat_application/core/elements/seekbar.dart';
 import 'package:chat_application/core/models/user_model.dart';
+import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/images.dart';
 import 'package:chat_application/features/chat/controller/chat_controller.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
+import 'package:chat_application/features/chat/view/pdf_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -282,27 +287,51 @@ class _ChatScreenState extends State<ChatScreen> {
       final f = DateFormat('HH:mm');
       String time = f.format(DateTime.fromMillisecondsSinceEpoch(int.parse(date)));
       if(chatModel.idFrom == controller.currentUserId){
-        return chatModel.type == Constance.text ?
-        messageBubble(chatModel.content, EdgeInsets.only(right: 4.w), CustomColor.message_bubble, time) :
-        chatModel.type == Constance.images ?
-        Container(
-           margin: EdgeInsets.only(top: 1.h),
-          child: chatImage(chatModel.content, CustomColor.message_bubble, time),
-        ) : chatModel.type == Constance.video ? Container(
-          margin: EdgeInsets.only(top: 1.h),
-          child: chatVideo(chatModel.content, time, CustomColor.message_bubble),
-        ) : const SizedBox.shrink();
-      }else {
-        return chatModel.type == Constance.text ?
-        messageBubble(chatModel.content, EdgeInsets.only(left: 20.w), CustomColor.primary.withOpacity(0.1), time) :
-        chatModel.type == Constance.images ?
-        Container(
-          margin: const EdgeInsets.only(left: 190),
-          child: chatImage(chatModel.content, CustomColor.primary.withOpacity(0.5), time),
-        ) : chatModel.type == Constance.video ? Container(
-          margin: EdgeInsets.only(top: 1.h),
-          child: chatVideo(chatModel.content, time, CustomColor.primary.withOpacity(0.5)),
-        ) : const SizedBox.shrink();
+        if(chatModel.type == Constance.text) {
+          return messageBubble(chatModel.content, EdgeInsets.only(right: 4.w), CustomColor.message_bubble, time);
+        } else if( chatModel.type == Constance.images) {
+          return Container(
+            margin: EdgeInsets.only(top: 1.h),
+            child: chatImage(chatModel.content, CustomColor.message_bubble, time),
+          );
+        } else if ( chatModel.type == Constance.video ){
+          return Container(
+            margin: EdgeInsets.only(top: 1.h),
+            child: chatVideo(chatModel.content, time, CustomColor.message_bubble),
+          );
+        } else if ( chatModel.type == Constance.file) {
+          return chatFile(chatModel.content, time, CustomColor.message_bubble);
+        } else if ( chatModel.type == Constance.audio) {
+          return chatAudio(chatModel.content, time, CustomColor.message_bubble);
+        }else {
+          return const SizedBox.shrink();
+        }
+      }
+      else {
+        if( chatModel.type == Constance.text ) {
+          return messageBubble(chatModel.content, EdgeInsets.only(left: 20.w), CustomColor.primary.withOpacity(0.1), time);
+        } else if ( chatModel.type == Constance.images ) {
+          return  Container(
+            margin: const EdgeInsets.only(left: 190),
+            child: chatImage(chatModel.content, CustomColor.primary.withOpacity(0.5), time),
+          );
+        } else if ( chatModel.type == Constance.video) {
+          return Container(
+            margin: EdgeInsets.only(top: 1.h),
+            child: chatVideo(chatModel.content, time, CustomColor.primary.withOpacity(0.5)),
+          );
+        } else if (chatModel.type == Constance.file) {
+          return Align(
+            alignment: Alignment.topRight,
+              child: chatFile(chatModel.content, time, CustomColor.primary.withOpacity(0.5)));
+        } else if ( chatModel.type == Constance.audio ) {
+          return Align(
+            alignment: Alignment.topRight,
+            child: chatAudio(chatModel.content, time, CustomColor.primary.withOpacity(0.5)),
+          );
+        }else {
+          return const SizedBox.shrink();
+        }
       }
     } else {
       return const SizedBox.shrink();
@@ -410,7 +439,7 @@ class _ChatScreenState extends State<ChatScreen> {
       alignment: Alignment.bottomCenter,
       child: Container(
         height: 30.h,
-        margin: EdgeInsets.only(bottom: 80, left: 12, right: 12),
+        margin: const EdgeInsets.only(bottom: 80, left: 12, right: 12),
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -419,7 +448,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: GridView.count(
             crossAxisCount: 3,
           padding: EdgeInsets.only(top: 1.h),
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: [
            dialogItem((){
              controller.getPdfAndUpload();
@@ -430,9 +459,13 @@ class _ChatScreenState extends State<ChatScreen> {
            dialogItem((){
              controller.getImagefromGallery();
            }, Images.outline_gallery, 'Gallery'),
-           dialogItem((){}, Images.audio, 'Audio'),
+           dialogItem((){
+             controller.getAudioAndUpload();
+           }, Images.audio, 'Audio'),
            dialogItem((){}, Images.location, 'Location'),
-           dialogItem((){}, Images.contact, 'Contact'),
+           dialogItem((){
+             Get.toNamed(Routes.CONTACT);
+           }, Images.contact, 'Contact'),
           ],
         ),
       ),
@@ -462,6 +495,90 @@ class _ChatScreenState extends State<ChatScreen> {
             CustomText(text: title)
           ],
         ),
+      ),
+    );
+  }
+
+  Widget chatFile(String pdfUrl, String time, Color color) {
+    return InkWell(
+      onTap: (){
+        Get.to(PdfScreen(pdfUrl: pdfUrl));
+      },
+      child: Container(
+        height: 18.h,
+        width: 50.w,
+        padding: EdgeInsets.all(1.5.w),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: color
+        ),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            SfPdfViewer.network(
+              pdfUrl,
+              pageLayoutMode: PdfPageLayoutMode.continuous,
+              enableDoubleTapZooming: false,
+            ),
+            Container(
+              height: 5.h,
+              color: color,
+              padding: EdgeInsets.all(1.w),
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset(Images.pdf, height: 3.h,),
+                    Text(time,
+                        style: TextStyle(fontSize: 1.5.h, color: Colors.black))
+                  ]
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget chatAudio(String songUrl, String time, Color color) {
+    controller.initialAudio(songUrl);
+    return Container(
+      height: 9.6.h,
+      width: 75.w,
+      padding: EdgeInsets.all(1.w),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: color
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end ,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ControlButtons(controller.audioPlayer),
+              StreamBuilder<PositionData>(
+                stream: controller.positionDataStream,
+                builder: (context, snapshot) {
+                  final positionData = snapshot.data;
+                  return SeekBar(
+                    duration: positionData?.duration ?? Duration.zero,
+                    position: positionData?.position ?? Duration.zero,
+                    bufferedPosition:
+                    positionData?.bufferedPosition ?? Duration.zero,
+                    onChangeEnd: controller.audioPlayer.seek,
+                  );
+                },
+              ),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.only(right: 1.w),
+            child: Text(time,
+              style: TextStyle(fontSize: 1.5.h, color: Colors.black),
+            ),
+          )
+        ],
       ),
     );
   }

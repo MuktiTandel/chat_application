@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:chat_application/core/controller/firebase_controller.dart';
 import 'package:chat_application/core/utils/constance.dart';
 import 'package:chat_application/core/utils/firebase_constant.dart';
@@ -13,7 +14,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 
 class ChatController extends GetxController {
 
@@ -43,6 +46,42 @@ class ChatController extends GetxController {
   final firebase_controller = Get.put(FirebaseController());
 
   Constance constance = Constance();
+
+  AudioPlayer audioPlayer = AudioPlayer();
+
+  @override
+  void onClose() {
+    audioPlayer.dispose();
+    super.onClose();
+  }
+
+  Future initialAudio(String songUrl) async {
+    
+    final session = await AudioSession.instance;
+    
+    await session.configure(const AudioSessionConfiguration.speech());
+    
+    audioPlayer.playbackEventStream.listen((event) {},
+      onError: (Object e, StackTrace stackTrace){
+          if (kDebugMode) {
+            print('A stream error occurred: $e');
+          }
+      });
+
+    try {
+      await audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(songUrl)));
+    } catch (e) {
+      constance.Debug("Error loading audio source: $e");
+    }
+  }
+
+  Stream<PositionData> get positionDataStream =>
+      rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+          audioPlayer.positionStream,
+          audioPlayer.bufferedPositionStream,
+          audioPlayer.durationStream,
+              (position, bufferedPosition, duration) => PositionData(
+              position, bufferedPosition, duration ?? Duration.zero));
 
   Future getCurrentUser() async {
 
@@ -279,6 +318,41 @@ class ChatController extends GetxController {
         print(e);
       }
     }
+  }
+
+  Future getAudioAndUpload() async {
+    File? audioFile;
+
+    String filename = DateTime
+        .now()
+        .millisecondsSinceEpoch
+        .toString();
+
+    String audiofile = '';
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.audio
+    );
+
+    if(result != null) {
+      audioFile = File(result.files.single.path!);
+    }
+
+    Reference reference = firebaseStorage.ref().child(filename);
+    UploadTask uploadTask = reference.putFile(audioFile!);
+
+    try {
+      TaskSnapshot taskSnapshot = await uploadTask;
+      audiofile = await taskSnapshot.ref.getDownloadURL();
+      OnMessageSend(audiofile, Constance.audio, currentUserId);
+      update();
+    } on FirebaseException catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+
+
   }
 
 }

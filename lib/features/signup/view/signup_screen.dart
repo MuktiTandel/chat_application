@@ -130,6 +130,7 @@ class SignupScreen extends StatelessWidget {
                   prefixiconColor: CustomColor.primary,
                   focusBorderColor: CustomColor.primary,
                   cursorColor: CustomColor.primary,
+                  onchange: (val){},
                   validator: (val){
                     if(val == null || val.isEmpty){
                       return 'Enter a valid user name';
@@ -151,6 +152,7 @@ class SignupScreen extends StatelessWidget {
                   prefixiconColor: CustomColor.primary,
                   focusBorderColor: CustomColor.primary,
                   cursorColor: CustomColor.primary,
+                  onchange: (val){},
                   validator: (val){
                     String pattern =
                         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
@@ -200,6 +202,7 @@ class SignupScreen extends StatelessWidget {
                   isObscure: controller.IsObsecure1.value,
                   cursorColor: CustomColor.primary,
                   maxline: 1,
+                  onchange: (val){},
                   suffixWidget: IconButton(
                       onPressed: (){
                         controller.showpassword1();
@@ -232,6 +235,7 @@ class SignupScreen extends StatelessWidget {
                   isObscure: controller.IsObsecure2.value,
                   cursorColor: CustomColor.primary,
                   maxline: 1,
+                  onchange: (val){},
                   suffixWidget: IconButton(
                       onPressed: (){
                         controller.showpassword2();
