@@ -57,7 +57,8 @@ dependencies:
   just_audio: ^0.9.29
   audio_session: ^0.1.10
   rxdart: ^0.27.5
-  flutter_contact: ^0.9.1+8
+  fluttercontactpicker: ^4.7.0
+  fast_contacts: ^1.1.1
 
 dev_dependencies:
   flutter_test:

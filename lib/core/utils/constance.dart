@@ -20,6 +20,7 @@ class Constance {
   static const int video = 3;
   static const int file = 4;
   static const int audio = 5;
+  static const int contact = 6;
 
 }
 

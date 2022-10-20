@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:chat_application/core/elements/control_button.dart';
 import 'package:chat_application/core/elements/custom_textformfield.dart';
 import 'package:chat_application/core/elements/customcolor.dart';
 import 'package:chat_application/core/elements/customtext.dart';
 import 'package:chat_application/core/elements/seekbar.dart';
+import 'package:chat_application/core/models/contact_model.dart';
 import 'package:chat_application/core/models/user_model.dart';
 import 'package:chat_application/core/routes/app_routes.dart';
 import 'package:chat_application/core/sizer/sizer.dart';
@@ -12,7 +15,9 @@ import 'package:chat_application/features/chat/controller/chat_controller.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
 import 'package:chat_application/features/chat/view/pdf_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fast_contacts/fast_contacts.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -303,7 +308,40 @@ class _ChatScreenState extends State<ChatScreen> {
           return chatFile(chatModel.content, time, CustomColor.message_bubble);
         } else if ( chatModel.type == Constance.audio) {
           return chatAudio(chatModel.content, time, CustomColor.message_bubble);
-        }else {
+        } else if( chatModel.type == Constance.contact) {
+          final data = jsonDecode(chatModel.content);
+          ContactDetail contactDetail = ContactDetail(
+              displayname: data['displayname'],
+              id: data['id'],
+              image: data['image'],
+              email: data['email'],
+              phone: data['phone']
+          );
+           constance.Debug('$data');
+          return Container(
+            height: 9.h,
+            width: 60.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: CustomColor.message_bubble
+            ),
+            child: Row(
+              children: [
+                Container(
+                  height: 6.5.h,
+                  width: 13.w,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black12
+                  ),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Image.memory(contactDetail.image, fit: BoxFit.fill,))
+                )
+              ],
+            ),
+          );
+        } else {
           return const SizedBox.shrink();
         }
       }
@@ -463,7 +501,7 @@ class _ChatScreenState extends State<ChatScreen> {
              controller.getAudioAndUpload();
            }, Images.audio, 'Audio'),
            dialogItem((){}, Images.location, 'Location'),
-           dialogItem((){
+           dialogItem(() async{
              Get.toNamed(Routes.CONTACT);
            }, Images.contact, 'Contact'),
           ],
