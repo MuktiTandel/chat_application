@@ -124,10 +124,9 @@ class SignupScreen extends StatelessWidget {
                 SizedBox(height: 3.h,),
                 CustomTextformfield(
                   controller: controller.username,
-                  prefixicon: Icons.person,
                   hinttext: 'Enter username',
                   border_radius: 35,
-                  prefixiconColor: CustomColor.primary,
+                  prefixWidget: Icon(Icons.person, color: CustomColor.primary,),
                   focusBorderColor: CustomColor.primary,
                   cursorColor: CustomColor.primary,
                   onchange: (val){},
@@ -146,10 +145,9 @@ class SignupScreen extends StatelessWidget {
                 SizedBox(height: 2.h,),
                 CustomTextformfield(
                   controller: controller.email,
-                  prefixicon:  Icons.email_rounded,
                   hinttext: 'Enter email',
                   border_radius: 35,
-                  prefixiconColor: CustomColor.primary,
+                  prefixWidget: Icon(Icons.email_rounded, color: CustomColor.primary,),
                   focusBorderColor: CustomColor.primary,
                   cursorColor: CustomColor.primary,
                   onchange: (val){},
@@ -195,13 +193,12 @@ class SignupScreen extends StatelessWidget {
                 Obx(() =>  CustomTextformfield(
                   controller: controller.password,
                   border_radius: 35,
-                  prefixicon: Icons.lock,
                   hinttext: 'Enter password',
-                  prefixiconColor: CustomColor.primary,
                   focusBorderColor: CustomColor.primary,
                   isObscure: controller.IsObsecure1.value,
                   cursorColor: CustomColor.primary,
                   maxline: 1,
+                  prefixWidget: Icon(Icons.lock, color: CustomColor.primary,),
                   onchange: (val){},
                   suffixWidget: IconButton(
                       onPressed: (){
@@ -228,9 +225,8 @@ class SignupScreen extends StatelessWidget {
                 Obx(() => CustomTextformfield(
                   controller: controller.confPassword,
                   border_radius: 35,
-                  prefixicon: Icons.lock,
+                  prefixWidget: const Icon(Icons.lock, color: CustomColor.primary,),
                   hinttext: 'Enter confirm password',
-                  prefixiconColor: CustomColor.primary,
                   focusBorderColor: CustomColor.primary,
                   isObscure: controller.IsObsecure2.value,
                   cursorColor: CustomColor.primary,

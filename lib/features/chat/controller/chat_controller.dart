@@ -17,6 +17,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatController extends GetxController {
 
@@ -351,8 +352,14 @@ class ChatController extends GetxController {
         print(e);
       }
     }
+  }
 
-
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber
+    );
+    await launchUrl(launchUri);
   }
 
 }

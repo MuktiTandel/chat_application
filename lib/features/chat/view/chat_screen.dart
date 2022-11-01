@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:chat_application/core/elements/control_button.dart';
 import 'package:chat_application/core/elements/custom_textformfield.dart';
@@ -15,6 +16,7 @@ import 'package:chat_application/features/chat/controller/chat_controller.dart';
 import 'package:chat_application/features/chat/model/chat_model.dart';
 import 'package:chat_application/features/chat/view/pdf_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:fast_contacts/fast_contacts.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
@@ -22,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -43,6 +46,8 @@ class _ChatScreenState extends State<ChatScreen> {
   VideoPlayerController? videoPlayerController;
 
   bool IsMessage = false;
+
+  bool emojiShowing = false;
 
   @override
   void initState() {
@@ -107,7 +112,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   SizedBox(width: 2.w,),
                   InkWell(
-                    onTap: (){},
+                    onTap: (){
+                      controller.makePhoneCall(userModel!.phonenumber);
+                    },
                     child: Container(
                       height: 6.h,
                       width: 12.w,
@@ -155,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     buildListMessage(),
                     SizedBox(height: 2.h,),
-                    buildMessageView(context)
+                    buildMessageView(context),
                   ],
                 ),
               ),
@@ -178,10 +185,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   Autofocus: false,
                   border_radius: 15,
                   focusBorderColor: Colors.black26,
-                  prefixWidget: InkWell(
-                    onTap: (){},
-                    child: Image.asset(Images.smile, scale: 22,),
-                  ),
                   suffixWidget: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

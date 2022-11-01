@@ -40,7 +40,7 @@ class HomeScreen extends StatelessWidget {
             fontWeight: FontWeight.w600
           ),
         ),
-        actions: [
+        /*actions: [
           Container(
             margin: const EdgeInsets.only(right: 15),
             child: InkWell(
@@ -68,7 +68,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           )
-        ],
+        ],*/
       ),
       body: Padding(
         padding:  EdgeInsets.all(4.w),

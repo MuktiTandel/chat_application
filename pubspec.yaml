@@ -59,6 +59,9 @@ dependencies:
   rxdart: ^0.27.5
   fluttercontactpicker: ^4.7.0
   fast_contacts: ^1.1.1
+  url_launcher: ^6.1.6
+  permission_handler: ^10.2.0
+  emoji_picker_flutter: ^1.5.0
 
 dev_dependencies:
   flutter_test:

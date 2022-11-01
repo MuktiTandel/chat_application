@@ -37,8 +37,7 @@ class LoginScreen extends StatelessWidget {
                   CustomTextformfield(
                     controller: controller.email,
                     hinttext: 'Enter Email',
-                    prefixicon: Icons.email_rounded,
-                    prefixiconColor: CustomColor.primary,
+                    prefixWidget: const Icon(Icons.email_rounded, color: CustomColor.primary,),
                     focusBorderColor: CustomColor.primary,
                     cursorColor: CustomColor.primary,
                     border_radius: 35,
@@ -49,21 +48,21 @@ class LoginScreen extends StatelessWidget {
                           r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
                           r"{0,253}[a-zA-Z0-9])?)*$";
                       RegExp regex = RegExp(pattern);
-                      if (val == null || val.isEmpty || !regex.hasMatch(val))
+                      if (val == null || val.isEmpty || !regex.hasMatch(val)) {
                         return 'Enter a valid email address';
-                      else
+                      } else {
                         return null;
+                      }
                     },
                   ),
                   SizedBox(height: 2.5.h,),
                   Obx(() => CustomTextformfield(
                     controller: controller.password,
-                    prefixicon: Icons.lock,
                     hinttext: 'Enter Password',
                     cursorColor: CustomColor.primary,
                     border_radius: 35,
                     isObscure: controller.IsObscure.value,
-                    prefixiconColor: CustomColor.primary,
+                    prefixWidget: const Icon(Icons.lock, color: CustomColor.primary,),
                     focusBorderColor: CustomColor.primary,
                     maxline: 1,
                     onchange: (val){},
@@ -71,7 +70,7 @@ class LoginScreen extends StatelessWidget {
                         onPressed: (){
                           controller.showpassword();
                         },
-                        icon: Icon(Icons.remove_red_eye_rounded, color: Colors.black26,)
+                        icon: const Icon(Icons.remove_red_eye_rounded, color: Colors.black26,)
                     ),
                     validator: (val){
                       RegExp regex =

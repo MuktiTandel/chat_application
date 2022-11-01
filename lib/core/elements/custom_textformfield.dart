@@ -56,7 +56,7 @@ class CustomTextformfield extends StatelessWidget {
           borderSide: BorderSide(color: focusBorderColor ?? Colors.black),
           borderRadius: BorderRadius.circular(border_radius ?? 10)
         ),
-        prefixIcon: prefixWidget ?? Icon(prefixicon, color: prefixiconColor,),
+        prefixIcon: prefixWidget,
         suffixIcon: suffixWidget,
         hintText: hinttext,
         errorText: errortext
